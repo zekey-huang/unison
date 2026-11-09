@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/zekey-huang/unison/issues"
   },
-  "homepage": "https://github.com/zekey-huang/unison#readme"
+  "homepage": "https://github.com/zekey-huang/unison#readme",
+  "dependencies": {
+    "ws": "^8.22.2"
+  }
 }

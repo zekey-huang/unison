@@ -56,4 +56,33 @@ Our LAN IP is the address our device gets on our local network. It's not visible
 
 But this means that our laptop won't work so I'll use 0.0.0.0 which is the wildcard meta-address. 
 
-So apparently we need to use http://<your LAN IP>:3000 on our phone. 0.0.0.0:3000 works on laptop because thats the same computer. My house wifi is actually down right now, so I will need to try the hotspot. 
+So apparently we need to use http://<your LAN IP>:3000 on our phone. 0.0.0.0:3000 works on laptop because thats the same computer. My house wifi is actually down right now, so I will need to try the hotspot. Now I think the hotspot is requiring me to use IPv6 so I need that version of 0.0.0.0 which is :: 
+
+And for the url to use in my phone: http://[2607:fb91:261f:4122:1814:62f:f116:5596]:3000
+
+I now have a server that handled requests from my laptop the host and a separate phone. 
+
+Now the next step is to figure out how to send a ping and then have the second device reply with a pong, and get the response time logged. In our application, the server would be the one sending the. 
+
+### Design Rough Draft
+Requirements: 3 phones, can join a room, one phone chooses an audio, songs start playing in sync
+
+One client chooses a song and sends a request to the server to play song[id]. The server then broadcasts play song[id] to all of the other clients. The issue is that those responses aren't guaranteed to deliver. I think we should just figure out how to get multiple clients and log their ids, and then have a client choose a song, and then have the server broadcast to all clients to play that song and see how that behaves. I think that songs will start playing at different times. 
+
+First thing I want to do is measure the amount of time it takes for a client to send a message to the server and then receive it back. How do we ID the client? 
+
+First off in order for the server to talk to the client we need a websocket. WebSocket keeps one conenction open between each phone and the server, so either side can send a message at any time. We should use one websocket per client. But in order to use a websocket, we need to serve an HTML page. We do this by changing text/plain to text/html and putting an html body. 
+
+I will use the fs library for loading in the ./index.html file that I used claude to generate. This is the native file system module which is built-in meaning it does not require installation via npm. 
+
+By the way for testing right now: 
+
+
+for hotspot:
+laptop: http://localhost:3000
+phone: http://[IPv6 address]:3000
+
+Ok now I have the unison page loading on two different devices. I have a join button that I can use. I want to click the join button and have it send a message, and then log the amount of time it takes for it to send to the client, and then conversely log the amount of time it takes for a client to send a message to the server. 
+
+
+In order for us to attach a WebSocket to our http server, we need to create the server first. So I will bring out the createServer to the top level. Now I am creating websocket server/clients. 

@@ -1,15 +1,41 @@
 const http = require('node:http');
+const fs = require('node:fs');
+const WebSocket = require('ws');
 
-const hostname = '0.0.0.0';
+const hostname = '::';
 const port = 3000;
+
+const html = fs.readFileSync('./index.html');
 
 const server = http.createServer((req, res) => {
     res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('hello\n');
-
+    res.setHeader('Content-Type', 'text/html');
+    res.end(html);
 });
 
-server.listen(port, hostname, () => {
-    console.log(`server running at http://${hostname}:${port}/`)
+
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
+  console.log('New client connected');
+  
+  // Send a welcome message to the client
+  ws.send('Welcome to the WebSocket server!');
+
+  // Message event handler
+  ws.on('message', (message) => {
+    console.log(`Received: ${message}`);
+    // Echo the message back to the client
+    ws.send(`Server received: ${message}`);
+  });
+
+  // Close event handler
+  ws.on('close', () => {
+    console.log('Client disconnected');
+  });
 });
+
+
+
+
+
