@@ -7,6 +7,9 @@ const port = 3000;
 
 const html = fs.readFileSync('./index.html');
 
+const clients = new Map();
+let nextId = 1;
+
 const server = http.createServer((req, res) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/html');
@@ -17,16 +20,25 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
-  console.log('New client connected');
+
+  const id = nextId++;
+  clients.set(id, ws);
+  console.log(`New client connected: ${id} `);
+  const welcome = { type: 'welcome', id: id };
+  
   
   // Send a welcome message to the client
-  ws.send('Welcome to the WebSocket server!');
+  ws.send(JSON.stringify(welcome));
 
   // Message event handler
   ws.on('message', (message) => {
     console.log(`Received: ${message}`);
+
+    // requestAck message
+    const requestAck = { type: 'requestAck', msg: `Server received: ${message}`};
+
     // Echo the message back to the client
-    ws.send(`Server received: ${message}`);
+    ws.send(JSON.stringify(requestAck));
   });
 
   // Close event handler
@@ -35,6 +47,9 @@ wss.on('connection', (ws) => {
   });
 });
 
+server.listen(port, hostname, () => {
+    console.log(`listening on port ${port}`);
+});
 
 
 

@@ -62,11 +62,46 @@
   <pre id="log"></pre>
 
   <script>
-    // Your client code goes here.
-    // Elements you can grab:
-    //   document.getElementById("status")  -> update connection status text
-    //   document.getElementById("join")    -> the Join button (the tap iPhones need before audio)
-    //   document.getElementById("log")     -> append lines like RTT results
+    const statusEl = document.getElementById('status');
+  const logEl = document.getElementById('log');
+  const joinBtn = document.getElementById('join');
+  let myId;
+
+  function log(text) {
+    logEl.textContent += text + '\n';
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  const ws = new WebSocket(`ws://${location.host}`);
+
+  ws.addEventListener('open', () => {
+    statusEl.textContent = 'connected';
+    log('connected to server');
+  });
+
+  ws.addEventListener('message', (event) => {
+    const msg = JSON.parse(event.data);
+    if (msg.type === 'welcome') {
+      myId = msg.id;
+      log(`I am client ${myId}`);
+    } else if (msg.type === 'requestAck') {
+      log(`server: ${msg.msg}`);
+    } else {
+      log(`unknown message type: ${msg.type}`);
+    }
+  });
+
+  ws.addEventListener('close', () => {
+    statusEl.textContent = 'disconnected';
+    log('disconnected');
+  });
+
+  ws.addEventListener('error', () => log('websocket error'));
+
+  joinBtn.addEventListener('click', () => {
+    ws.send(JSON.stringify({ type: 'hello', text: `hi from client ${myId}` }));
+    log('sent hello');
+  });
   </script>
 </body>
 </html>

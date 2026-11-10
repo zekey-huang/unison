@@ -86,3 +86,9 @@ Ok now I have the unison page loading on two different devices. I have a join bu
 
 
 In order for us to attach a WebSocket to our http server, we need to create the server first. So I will bring out the createServer to the top level. Now I am creating websocket server/clients. 
+
+Another thing to note is that http.createServer() builds a server but server.listen() actually starts it. 
+
+I now need to make each individual client numbered or identifiable. I wonder what can identify a device or client. We can give each client an ID and then store a map of id to the client. We use JSON.stringify to turn a JS value into a string of text in JSON format. We match it with JSON.parse()
+
+Today, we implemented websocket client and server and got it working not only in command line but on our html file and on our phone. The move is now to define different messages that we can send, and implement those messages. Then we want to time those messages and then use something to get a general sense of overall how much time it will take for these messages to send. Once we see these times, then we can make decisions. These times, depending on whether or not they variate, or are short enough can tell us if we need to use tricks to get a clock syncing and will influence our design for sync. 
